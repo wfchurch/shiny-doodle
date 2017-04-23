@@ -78,13 +78,13 @@ public class CpuSim : MonoBehaviour {
 
         if (opCodeSimInst != null)
         {
-            Debug.Log("Processing::" + opCodeSimInst.codeSim.ToString() + " on::" + codeSimInst.codeSim.ToString());
+            //Debug.Log("Processing::" + opCodeSimInst.codeSim.ToString() + " on::" + codeSimInst.codeSim.ToString());
             float time = opCodeSimInst.DoCyclesTask(mHz, EndProcess);
             codeSimInst.DoTimeTask(time, null);
         }
         else
         {
-            Debug.Log("Processing::" + codeSimInst.ToString());
+            //Debug.Log("Processing::" + codeSimInst.ToString());
             codeSimInst.DoCyclesTask(mHz, EndProcess);
         }
     }
@@ -108,12 +108,13 @@ public class CpuSim : MonoBehaviour {
         }
         else
         {
-            codeSimInst.codeSim.Exec(null); // execute the code sim.
+            codeSimInst.codeSim.Exec(); // execute the code sim.
             codeSimInst = null;
         }
         
         processing = false;
         dirtyUI = true;
     }
+    
         
 }

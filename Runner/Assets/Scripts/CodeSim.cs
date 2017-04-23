@@ -26,7 +26,7 @@ public class CodeSim : MonoBehaviour {
         return newInst;
     }
 
-    public virtual void Exec( CodeSim opCode )
+    public virtual void Exec(CodeSim opCode)
     {
         if (type == CodeType.codeOp)
         {
@@ -44,6 +44,21 @@ public class CodeSim : MonoBehaviour {
             // Error to run data as code
             Debug.Log("DATA - " + this.ToString());
         }
+    }
+
+    public virtual void Exec()
+    {
+
+    }
+
+    public void InvalidOperatorMsg(CodeSim opCode)
+    {
+        Debug.Log("Invalid Operator:" + opCode.ToString());
+    }
+
+    public void UsrMsg(string msg)
+    {
+        Debug.Log(this.ToString() + " - " + msg);
     }
 
 }
