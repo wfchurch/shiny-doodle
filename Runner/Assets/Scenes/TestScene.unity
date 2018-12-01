@@ -585,9 +585,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a59e2b6352a89f4dae3d742921193af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runActive: 0
+  endRun: 0
   mainUI: {fileID: 0}
-  runEnd: {fileID: 0}
+  runEndText: {fileID: 0}
 --- !u!4 &1181735020
 Transform:
   m_ObjectHideFlags: 0

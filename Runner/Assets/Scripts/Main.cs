@@ -8,9 +8,12 @@ public enum Who { player, corp, both };
 
 public class Main : MonoBehaviour {
 
+    public static Int32 seed = 0;
+
     public static Main instance;
 
-    public bool runActive;
+    public bool endRun = false;
+    private bool corpPlayer = false;
 
     private CpuSim playerCpu;
     private RamSim playerRam;
@@ -19,7 +22,7 @@ public class Main : MonoBehaviour {
     private RamSim corpRam;
 
     public RectTransform mainUI;
-    public Text runEnd;
+    public Text runEndText;
 
 	//public CpuSimUI playerCpuSimUI;
     //public RamSimUI playerRamSimUI;
@@ -44,8 +47,8 @@ public class Main : MonoBehaviour {
         //Debug.Log(System.Environment.Version);
 
         mainUI = GameObject.Find("RunCanvas").GetComponent<RectTransform>();
-        runEnd = GameObject.Find("RunEndedText").GetComponent<Text>();
-        runEnd.gameObject.SetActive(false);
+        runEndText = GameObject.Find("RunEndedText").GetComponent<Text>();
+        runEndText.gameObject.SetActive(false);
 
         // Runner Sims
         CacheSim playerCache = gameObject.AddComponent<CacheSim>();
@@ -68,6 +71,7 @@ public class Main : MonoBehaviour {
 
         LoadRam(playerRam, Who.player);
 
+        //Debug.Log(playerRamUI.GetComponent<RectTransform>().rect.ToString());
 
         // Corp Sims
         CacheSim corpCache = gameObject.AddComponent<CacheSim>();
@@ -88,15 +92,26 @@ public class Main : MonoBehaviour {
         CpuSimUI corpCpuUI = mainUI.FindChild("CorpCpuPanel").GetComponent<CpuSimUI>();
         corpCpuUI.Init(corpCpu);
 
+        LoadRam(corpRam, Who.corp);
+
+        corpPlayer = true;
+
     }
 
     void Update()
     {
-        if(!runActive)
+        if(endRun)
         {
             // End the run
-            runEnd.gameObject.SetActive(true);
+            runEndText.gameObject.SetActive(true);
             Time.timeScale = 0;
+        }
+        if(corpPlayer)
+        {
+            CodeSimInst codeSimInst = corpRam.Read("GenCoFirewall");
+            if(codeSimInst != null)
+                corpCpu.GetCache().WriteCache(codeSimInst);
+            corpPlayer = false;
         }
     }
 
@@ -126,43 +141,85 @@ public class Main : MonoBehaviour {
     {
         if(who == Who.player)
         {
-            ramSim.Load(gameObject.AddComponent<CSDebugData>());
-            ramSim.Load(gameObject.AddComponent<CSDebug>());
+            ramSim.Load(gameObject.AddComponent<CSRScanner>());
         }
         else if(who == Who.corp)
         {
-
+            ramSim.Load(gameObject.AddComponent<CSCFirewall>());
         }
     }
 
     public void DoPointerClick( CodeSimInst codeSimInst )
     {
-        CodeSimInst newCodeSimInst = codeSimInst.codeSim.GetCopy();
-        newCodeSimInst.id = codeID++;
 
-        if(opCodeSimInst != null)
+        // left click
+        if (Input.GetMouseButtonUp(0))
         {
-            Debug.Log("Operand choosen::" + newCodeSimInst.codeSim.ToString());
-            if (newCodeSimInst.codeSim.type == CodeType.codeOp)
+            CodeSimInst newCodeSimInst = codeSimInst.codeSim.GetCopy();
+            
+            if (opCodeSimInst != null)
+            {
+                newCodeSimInst.id = codeID++;
+
+                //Debug.Log("Operand choosen::" + newCodeSimInst.codeSim.ToString());
+                if (newCodeSimInst.codeSim.type == CodeType.codeOp)
+                {
+                    Debug.Log("Choose an operand for::" + newCodeSimInst.codeSim.ToString());
+                    opCodeSimInst.opCodeInst = newCodeSimInst;
+                    opCodeSimInst = newCodeSimInst;
+                }
+                else
+                {
+                    opCodeSimInst.opCodeInst = newCodeSimInst;
+                    opCodeSimInst = null;
+                }
+            }
+            else if (newCodeSimInst.codeSim.type == CodeType.codeOp)
             {
                 Debug.Log("Choose an operand for::" + newCodeSimInst.codeSim.ToString());
-                opCodeSimInst.opCodeInst = newCodeSimInst;
                 opCodeSimInst = newCodeSimInst;
             }
-            else
-            {
-                opCodeSimInst.opCodeInst = newCodeSimInst;
-                opCodeSimInst = null;
-            }
+
+            playerCpu.GetCache().WriteCache(newCodeSimInst);
         }
-        else if( newCodeSimInst.codeSim.type == CodeType.codeOp )
+
+        // right click
+        if (Input.GetMouseButtonUp(1))
         {
-            Debug.Log("Choose an operand for::" + newCodeSimInst.codeSim.ToString());
-            opCodeSimInst = newCodeSimInst;
+            // get rid of the code object
+
+            //if (opCodeSimInst != null)
+            //{
+            //    newCodeSimInst.id = codeID++;
+
+            //    //Debug.Log("Operand choosen::" + newCodeSimInst.codeSim.ToString());
+            //    if (newCodeSimInst.codeSim.type == CodeType.codeOp)
+            //    {
+            //        Debug.Log("Choose an operand for::" + newCodeSimInst.codeSim.ToString());
+            //        opCodeSimInst.opCodeInst = newCodeSimInst;
+            //        opCodeSimInst = newCodeSimInst;
+            //    }
+            //    else
+            //    {
+            //        opCodeSimInst.opCodeInst = newCodeSimInst;
+            //        opCodeSimInst = null;
+            //    }
+            //}
+            //else if (newCodeSimInst.codeSim.type == CodeType.codeOp)
+            //{
+            //    Debug.Log("Choose an operand for::" + newCodeSimInst.codeSim.ToString());
+            //    opCodeSimInst = newCodeSimInst;
+            //}
+
+            //playerCpu.GetCache().WriteCache(newCodeSimInst);
         }
-            
-        playerCpu.GetCache().WriteCache(newCodeSimInst);
-                
+
+        // middle click
+        if (Input.GetMouseButtonUp(2))
+        {
+
+        }
+
     }
    
 }

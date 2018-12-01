@@ -58,7 +58,7 @@ public class CacheSim : MonoBehaviour {
     
     private void StartCachingItem(CodeSimInst codeSimInst)
     {
-        Debug.Log("Caching::" + codeSimInst.ToString());
+        //Debug.Log("Caching::" + codeSimInst.ToString());
 
         //set states
         cacheState = CacheState.caching;
@@ -123,7 +123,7 @@ public class CacheSim : MonoBehaviour {
 
     public bool RoomInCache( CodeSimInst codeSimInst)
     {
-        if( (codeSimInst.codeSim.size + size) < capacity)
+        if( size < capacity)
         {
             return true;
         }
